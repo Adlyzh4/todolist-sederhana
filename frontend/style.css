@@ -12,12 +12,6 @@ body {
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.card-body {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
 .btn-edit {
     background-color: orange;
     color: white;
@@ -43,3 +37,51 @@ body {
 .btn-delete:hover {
     background-color: darkred;
 }
+
+.task-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+    margin-bottom: 15px;
+}
+
+.task-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-header {
+    font-size: 1.2rem;
+    font-weight: bold;
+    background: #007bff;
+    color: white;
+    border-radius: 12px 12px 0 0;
+    padding: 10px;
+}
+
+.card-body {
+    padding: 15px;
+}
+
+.status {
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+.done {
+    background-color: green;
+    color: white;
+}
+
+.not-done {
+    background-color: orange;
+    color: white;
+}
+
+.task-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+

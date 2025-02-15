@@ -22,16 +22,16 @@
     <!-- Offcanvas Sidebar -->
     <div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="offcanvasNavbar">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title">Dashboard</h5>
+            <h5 class="offcanvas-title ">Dashboard</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
         </div>
         <div class="offcanvas-body">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="#" id="showTasks">📋 Task</a>
+                    <a class="nav-link text-white btn btn-primary" href="#" id="showTasks">📋 Task</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="#" id="showAddTask">➕ Tambah Tugas</a>
+                    <a class="nav-link text-white btn btn-primary" href="#" id="showAddTask">➕ Tambah Tugas</a>
                 </li>
             </ul>
         </div>
@@ -51,11 +51,61 @@
         <div id="addTaskSection" class="d-none">
             <h2>Tambah Tugas</h2>
             <div class="input-group mb-3">
-                <input type="text" id="taskInput" class="form-control" placeholder="Masukkan tugas...">
-                <button class="btn btn-primary" id="addTaskBtn">Tambah</button>
+                <input type="text" id="taskTitle" class="form-control" placeholder="Judul tugas...">
+            </div>
+            <div class="input-group mb-3">
+                <textarea id="taskDescription" class="form-control" placeholder="Deskripsi tugas..." rows="3"></textarea>
+            </div>
+            <div class="input-group mb-3">
+                <input type="date" id="taskDeadline" class="form-control">
+            </div>
+            <button class="btn btn-primary" id="addTaskBtn">Tambah</button>
+        </div>
+    </div>
+
+    <!-- Modal Edit Tugas -->
+    <div class="modal fade" id="editTaskModal" tabindex="-1" aria-labelledby="editTaskModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="editTaskModalLabel">Edit Tugas</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            <div class="mb-3">
+                <label for="editTaskTitle" class="form-label">Judul</label>
+                <input type="text" class="form-control" id="editTaskTitle">
+            </div>
+            <div class="mb-3">
+                <label for="editTaskDescription" class="form-label">Deskripsi</label>
+                <textarea class="form-control" id="editTaskDescription" rows="3"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="editTaskDeadline" class="form-label">Deadline</label>
+                <input type="date" class="form-control" id="editTaskDeadline">
+            </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+            <button type="button" class="btn btn-primary" id="saveEditTask">Simpan</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifikasi -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="taskToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMessage">
+                    Tugas berhasil ditambahkan!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
     </div>
+
+  
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
