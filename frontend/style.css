@@ -5,7 +5,7 @@ body {
 .container {
     max-width: 900px;
 }
-
+    
 .card {
     margin-bottom: 15px;
     border-radius: 10px;
@@ -83,5 +83,40 @@ body {
     display: flex;
     justify-content: space-between;
     margin-top: 10px;
+}
+
+/* Gradient background pada Navbar */
+.navbar {
+    background: linear-gradient(45deg, #FF7F50, #000000);
+}
+
+/* Menambahkan efek hover pada item sidebar */
+.nav-link:hover {
+    background-color: #FF7F50;
+    color: #000;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Menambahkan animasi pada tombol */
+.navbar .btn-outline-light {
+    transition: all 0.3s ease;
+}
+
+.navbar .btn-outline-light:hover {
+    background-color: #FF7F50;
+    color: #000;
+    transform: scale(1.05);
+}
+
+/* Menambahkan animasi pada tombol sidebar */
+.nav-link {
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: #FF7F50;
+    border-radius: 10px;
+    transform: scale(1.05);
 }
 

@@ -10,88 +10,107 @@
 <body>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-dark bg-dark fixed-top">
-        <div class="container-fluid">
-            <button class="btn btn-outline-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
-                ☰ Menu
-            </button>
-            <span class="navbar-brand mx-auto">To-Do List</span>
-        </div>
-    </nav>
-
-    <!-- Offcanvas Sidebar -->
-    <div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="offcanvasNavbar">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title ">Dashboard</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
-        </div>
-        <div class="offcanvas-body">
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link text-white btn btn-primary" href="#" id="showTasks">📋 Task</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white btn btn-primary" href="#" id="showAddTask">➕ Tambah Tugas</a>
-                </li>
-            </ul>
-        </div>
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top shadow-sm" style="background: linear-gradient(45deg,#000000 ,#FF7F50 );">
+    <div class="container-fluid">
+        <button class="btn btn-outline-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
+            <i class="bi bi-list"></i> Menu
+        </button>
+        <span class="navbar-brand mx-auto fw-bold">To-Do List</span>
+        <hr>
     </div>
+</nav>
+
+<!-- Offcanvas Sidebar -->
+<div class="offcanvas offcanvas-start bg-dark text-white shadow-lg" tabindex="-1" id="offcanvasNavbar">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" style="color: #FF7F50;">Dashboard</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link text-white btn btn-outline-warning mb-2 p-3 rounded-3 shadow-sm" href="#" id="showTasks">
+                    <i class="bi bi-clipboard-check me-2"></i> 📋 Task
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white btn btn-outline-warning mb-2 p-3 rounded-3 shadow-sm" href="#" id="showAddTask">
+                    <i class="bi bi-plus-circle me-2"></i> ➕ Tambah Tugas
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
 
     <!-- Konten Utama -->
-    <div class="container mt-5 pt-5">
-        <!-- Daftar Tugas -->
-        <div id="taskSection">
-            <h2>Daftar Tugas</h2>
-            <div class="row" id="taskList">
-                <!-- Card tugas akan muncul di sini -->
-            </div>
-        </div>
-
-        <!-- Tambah Tugas -->
-        <div id="addTaskSection" class="d-none">
-            <h2>Tambah Tugas</h2>
-            <div class="input-group mb-3">
-                <input type="text" id="taskTitle" class="form-control" placeholder="Judul tugas...">
-            </div>
-            <div class="input-group mb-3">
-                <textarea id="taskDescription" class="form-control" placeholder="Deskripsi tugas..." rows="3"></textarea>
-            </div>
-            <div class="input-group mb-3">
-                <input type="date" id="taskDeadline" class="form-control">
-            </div>
-            <button class="btn btn-primary" id="addTaskBtn">Tambah</button>
+<div class="container mt-5 pt-5">
+    <!-- Daftar Tugas -->
+    <div id="taskSection">
+        <h2 class="text-center mb-4">Daftar Tugas</h2>
+        <div class="row" id="taskList">
+            <!-- Card tugas akan muncul di sini -->
         </div>
     </div>
+
+    <!-- Tambah Tugas -->
+    <div id="addTaskSection" class="d-none">
+        <form action="" id="task-form" class="p-4 rounded-3 shadow-lg bg-light">
+            <h2 class="text-center mb-4">Tambah Tugas</h2>
+            <div class="input-group mb-3">
+                <input type="text" id="taskTitle" class="form-control" placeholder="Judul tugas..." required>
+            </div>
+            <div class="input-group mb-3">
+                <textarea id="taskDescription" class="form-control" placeholder="Deskripsi tugas..." rows="3" required></textarea>
+            </div>
+            <div class="input-group mb-3">
+                <input type="date" id="taskDeadline" class="form-control" required>
+            </div>
+            <button type="button" class="btn btn-outline-primary w-100 mt-3" onclick="addTask()">Tambah Tugas</button>
+        </form>
+    </div>
+</div>
+
 
     <!-- Modal Edit Tugas -->
-    <div class="modal fade" id="editTaskModal" tabindex="-1" aria-labelledby="editTaskModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-            <h5 class="modal-title" id="editTaskModalLabel">Edit Tugas</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-            <div class="mb-3">
-                <label for="editTaskTitle" class="form-label">Judul</label>
-                <input type="text" class="form-control" id="editTaskTitle">
-            </div>
-            <div class="mb-3">
-                <label for="editTaskDescription" class="form-label">Deskripsi</label>
-                <textarea class="form-control" id="editTaskDescription" rows="3"></textarea>
-            </div>
-            <div class="mb-3">
-                <label for="editTaskDeadline" class="form-label">Deadline</label>
-                <input type="date" class="form-control" id="editTaskDeadline">
-            </div>
-            </div>
-            <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-            <button type="button" class="btn btn-primary" id="saveEditTask">Simpan</button>
-            </div>
+<div class="modal fade" id="editTaskModal" tabindex="-1" aria-labelledby="editTaskLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editTaskLabel">Edit Tugas</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
+        <div class="modal-body">
+          <input type="hidden" id="edit-task-id">
+          <div class="mb-3">
+            <label for="edit-task-title" class="form-label">Judul</label>
+            <input type="text" id="edit-task-title" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label for="edit-task-desc" class="form-label">Deskripsi</label>
+            <textarea id="edit-task-desc" class="form-control"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="edit-task-deadline" class="form-label">Deadline</label>
+            <input type="date" id="edit-task-deadline" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label for="edit-task-status" class="form-label">Status</label>
+            <select id="edit-task-status" class="form-select">
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="button" class="btn btn-primary" onclick="updateTask()">Simpan</button>
+        </div>
+      </div>
     </div>
+  </div>
+  
+
 
     <!-- Toast Notifikasi -->
     <div class="toast-container position-fixed top-0 end-0 p-3">

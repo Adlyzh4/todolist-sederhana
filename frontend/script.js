@@ -1,144 +1,244 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const taskTitle = document.getElementById("taskTitle");
-    const taskDescription = document.getElementById("taskDescription");
-    const taskDeadline = document.getElementById("taskDeadline");
-    const addTaskBtn = document.getElementById("addTaskBtn");
-    const taskList = document.getElementById("taskList");
-    const taskSection = document.getElementById("taskSection");
-    const addTaskSection = document.getElementById("addTaskSection");
+    fetchTasks();
+    setupNavigation();
+});
 
-    let tasks = [];
+// Ambil data tugas dari server
+const fetchTasks = async () => {
+    try {
+        const response = await fetch("http://localhost:5000/api/tasks");
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const tasks = await response.json();
 
-    // Sidebar Navigation
+        if (!Array.isArray(tasks)) {
+            throw new Error("Data yang diterima bukan array.");
+        }
+
+        renderTasks(tasks);
+    } catch (error) {
+        console.error("Error fetching tasks:", error);
+        showToast("Gagal mengambil tugas. Coba lagi nanti.", "danger");
+    }
+};
+
+// Render daftar tugas dalam bentuk card
+const renderTasks = (tasks) => {
+    const taskContainer = document.getElementById("taskList");
+    taskContainer.innerHTML = ""; // Kosongkan container sebelum render ulang
+
+    if (tasks.length === 0) {
+        taskContainer.innerHTML = `<p class="text-center">Belum ada tugas.</p>`;
+        return;
+    }
+
+    tasks.forEach((task) => {
+        const taskCard = document.createElement("div");
+        taskCard.classList.add("col-md-4", "mb-3");
+
+        // Tombol status dengan warna sesuai status
+        const statusBtnClass = task.status === "completed" ? "btn-success" : "btn-warning";
+        const statusText = task.status === "completed" ? "Selesai" : "Pending";
+
+        const formatDate = (dateString) => {
+            const options = { day: "2-digit", month: "long", year: "numeric" };
+            return new Date(dateString).toLocaleDateString("id-ID", options);
+        };
+        
+
+        taskCard.innerHTML = `
+            <div class="card shadow-sm border-0 rounded-3 task-card">
+                <div class="card-body position-relative p-4">
+                    <button class="btn btn-close position-absolute top-0 end-0 mt-2 me-2" 
+                            aria-label="Close" onclick="deleteTask(${task.id})"></button>
+                    
+                    <h5 class="card-title fw-bold text-primary">${task.title}</h5>
+                    <p class="card-text text-muted">${task.description}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                    <p class="text-secondary mb-1">
+                        <i class="bi bi-calendar-event"></i> <strong>Deadline:</strong>
+                        <span class="text-muted"> ${formatDate(task.deadline)}</span>
+                    </p>
+                    </div>
+                    <div class="d-flex justify-content-start align-items-center">
+                        <span class="badge ${task.status === 'completed' ? 'bg-success' : 'bg-warning'}">
+                            ${task.status === "completed" ? "Selesai ✅" : "Belum Selesai ⏳"}
+                        </span>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-3">
+                        <button class="btn ${statusBtnClass} w-100" 
+                                onclick="toggleStatus(${task.id}, '${task.status}')">
+                            ${statusText}
+                        </button>
+                        <button class="btn btn-outline-primary w-100" onclick="editTask(${task.id})">
+                            ✏️ Edit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        taskContainer.appendChild(taskCard);
+    });
+};
+
+// Fungsi untuk mengganti status tugas
+const toggleStatus = async (id, currentStatus) => {
+    const newStatus = currentStatus === "completed" ? "pending" : "completed";
+
+    try {
+        const response = await fetch(`http://localhost:5000/api/tasks/${id}/status`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: newStatus }),
+        });
+
+        if (!response.ok) {
+            throw new Error("Gagal memperbarui status tugas.");
+        }
+
+        fetchTasks(); // Refresh daftar tugas
+        showToast(`Status tugas diperbarui menjadi ${newStatus}!`, "info");
+    } catch (error) {
+        console.error("Error updating status:", error);
+        showToast("Gagal memperbarui status tugas.", "danger");
+    }
+};
+
+
+// Navigasi antara daftar tugas dan tambah tugas
+const setupNavigation = () => {
     document.getElementById("showTasks").addEventListener("click", () => {
-        taskSection.classList.remove("d-none");
-        addTaskSection.classList.add("d-none");
+        document.getElementById("taskSection").classList.remove("d-none");
+        document.getElementById("addTaskSection").classList.add("d-none");
     });
 
     document.getElementById("showAddTask").addEventListener("click", () => {
-        taskSection.classList.add("d-none");
-        addTaskSection.classList.remove("d-none");
+        document.getElementById("taskSection").classList.add("d-none");
+        document.getElementById("addTaskSection").classList.remove("d-none");
     });
+};
 
-    // Tambah Tugas
-    addTaskBtn.addEventListener("click", () => {
-        if (taskTitle.value.trim() !== "" && taskDescription.value.trim() !== "" && taskDeadline.value) {
-            tasks.push({
-                title: taskTitle.value,
-                description: taskDescription.value,
-                deadline: taskDeadline.value,
-                done: false
-            });
-            renderTasks();
-            showToast("Tugas berhasil ditambahkan!", "success");
-            taskTitle.value = "";
-            taskDescription.value = "";
-            taskDeadline.value = "";
-        }
-    });
+// Tambah tugas baru
+const addTask = async () => {
+    const title = document.getElementById("taskTitle").value.trim();
+    const description = document.getElementById("taskDescription").value.trim();
+    const deadline = document.getElementById("taskDeadline").value.trim();
 
-    // Render Tugas dalam Bentuk Card
-    function renderTasks() {
-        taskList.innerHTML = "";
-        tasks.forEach((task, index) => {
-            const card = document.createElement("div");
-            card.classList.add("col-md-6", "col-lg-4");
-    
-            card.innerHTML = `
-                <div class="card task-card">
-                    <div class="card-header">${task.title}</div>
-                    <div class="card-body">
-                        <p>${task.description}</p>
-                        <p><strong>Deadline:</strong> ${task.deadline}</p>
-                        <span class="status ${task.done ? 'done' : 'not-done'}">
-                            ${task.done ? 'Selesai' : 'Belum Selesai'}
-                        </span>
-                        <div class="task-buttons">
-                            <button class="btn btn-success btn-sm" onclick="toggleStatus(${index})">✔ Selesai</button>
-                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" onclick="editTask(${index})">✏ Edit</button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteTask(${index})">🗑 Hapus</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            taskList.appendChild(card);
+    if (!title || !description || !deadline) {
+        showToast("Harap isi semua bidang!", "warning");
+        return;
+    }
+
+    const newTask = { title, description, deadline, status: "pending" };
+
+    try {
+        const response = await fetch("http://localhost:5000/api/tasks", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newTask),
         });
+
+        const responseData = await response.json(); // Ambil response dalam bentuk JSON
+
+        if (!response.ok) {
+            console.error("Server responded with an error:", responseData);
+            throw new Error(responseData.message || "Gagal menambahkan tugas.");
+        }
+
+        showToast("Tugas berhasil ditambahkan!", "success");
+        document.getElementById("task-form").reset();
+        fetchTasks(); // Refresh daftar tugas
+    } catch (error) {
+        console.error("Error adding task:", error);
+        showToast("Gagal menambahkan tugas. Coba lagi nanti.", "danger");
     }
-    
+};
 
-    // Edit Tugas
-    window.editTask = (index) => {
-        const newTitle = prompt("Edit judul tugas:", tasks[index].title);
-        const newDescription = prompt("Edit deskripsi tugas:", tasks[index].description);
-        const newDeadline = prompt("Edit deadline (YYYY-MM-DD):", tasks[index].deadline);
-        if (newTitle && newDescription && newDeadline) {
-            tasks[index].title = newTitle;
-            tasks[index].description = newDescription;
-            tasks[index].deadline = newDeadline;
-            renderTasks();
+
+// Edit tugas
+const editTask = async (id) => {
+    try {
+        const response = await fetch(`http://localhost:5000/api/tasks/${id}`);
+        if (!response.ok) {
+            throw new Error("Gagal mengambil data tugas.");
         }
-    };
+        const task = await response.json();
 
-    // Hapus Tugas
-    window.deleteTask = (index) => {
-        tasks.splice(index, 1);
-        renderTasks();
-        showToast("Tugas berhasil dihapus!", "success");
-    };
+        document.getElementById("edit-task-id").value = task.id;
+        document.getElementById("edit-task-title").value = task.title;
+        document.getElementById("edit-task-desc").value = task.description;
+        document.getElementById("edit-task-deadline").value = task.deadline;
+        document.getElementById("edit-task-status").value = task.status;
 
-    // Toggle Status
-    window.toggleStatus = (index) => {
-        tasks[index].done = !tasks[index].done;
-        renderTasks();
-    };
+        new bootstrap.Modal(document.getElementById("editTaskModal")).show();
+    } catch (error) {
+        console.error("Error fetching task for edit:", error);
+        showToast("Gagal mengambil data tugas untuk diedit.", "danger");
+    }
+};
 
-    let editIndex = -1; // Untuk menyimpan index tugas yang sedang diedit
+// Update tugas
+const updateTask = async () => {
+    const id = document.getElementById("edit-task-id").value;
+    const title = document.getElementById("edit-task-title").value.trim();
+    const description = document.getElementById("edit-task-desc").value.trim();
+    const deadline = document.getElementById("edit-task-deadline").value.trim();
+    const status = document.getElementById("edit-task-status").value;
 
-    // Fungsi untuk membuka modal dan mengisi data tugas yang akan diedit
-    window.editTask = (index) => {
-        editIndex = index;
-        document.getElementById("editTaskTitle").value = tasks[index].title;
-        document.getElementById("editTaskDescription").value = tasks[index].description;
-        document.getElementById("editTaskDeadline").value = tasks[index].deadline;
-    
-        // Menampilkan modal Bootstrap
-        let editModal = new bootstrap.Modal(document.getElementById("editTaskModal"));
-        editModal.show();
-    };
-    
-    // Fungsi untuk menyimpan hasil edit
-    document.getElementById("saveEditTask").addEventListener("click", () => {
-        if (editIndex !== -1) {
-            tasks[editIndex].title = document.getElementById("editTaskTitle").value;
-            tasks[editIndex].description = document.getElementById("editTaskDescription").value;
-            tasks[editIndex].deadline = document.getElementById("editTaskDeadline").value;
-    
-            renderTasks(); // Refresh tampilan tugas
-            editIndex = -1; // Reset index tugas yang sedang diedit
-    
-            // Tutup modal setelah menyimpan
-            let editModal = bootstrap.Modal.getInstance(document.getElementById("editTaskModal"));
-            editModal.hide();
-        }
-        showToast("Tugas berhasil diubah!", "success");
-    });
-
-    // Fungsi untuk menampilkan toast
-    function showToast(message, type = "success") {
-        const toastElement = document.getElementById("taskToast");
-        const toastBody = document.getElementById("toastMessage");
-
-        // Ubah warna berdasarkan jenis notifikasi
-        toastElement.className = `toast align-items-center text-white bg-${type} border-0`;
-        toastBody.textContent = message;
-
-        // Tampilkan toast
-        let toast = new bootstrap.Toast(toastElement);
-        toast.show();
+    if (!title || !description || !deadline) {
+        showToast("Harap isi semua bidang!", "warning");
+        return;
     }
 
-            
+    try {
+        const response = await fetch(`http://localhost:5000/api/tasks/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title, description, deadline, status }),
+        });
 
-        // Tampilkan tugas saat halaman dimuat
-        renderTasks();
-    });
+        if (!response.ok) {
+            throw new Error("Gagal memperbarui tugas.");
+        }
+
+        fetchTasks();
+        showToast("Tugas berhasil diperbarui!", "info");
+        bootstrap.Modal.getInstance(document.getElementById("editTaskModal")).hide();
+    } catch (error) {
+        console.error("Error updating task:", error);
+        showToast("Gagal memperbarui tugas. Coba lagi nanti.", "danger");
+    }
+};
+
+// Hapus tugas
+const deleteTask = async (id) => {
+    if (!confirm("Apakah Anda yakin ingin menghapus tugas ini?")) return;
+
+    try {
+        const response = await fetch(`http://localhost:5000/api/tasks/${id}`, { method: "DELETE" });
+
+        if (!response.ok) {
+            throw new Error("Gagal menghapus tugas.");
+        }
+
+        fetchTasks();
+        showToast("Tugas berhasil dihapus!", "danger");
+    } catch (error) {
+        console.error("Error deleting task:", error);
+        showToast("Gagal menghapus tugas. Coba lagi nanti.", "danger");
+    }
+};
+
+// Menampilkan notifikasi toast
+const showToast = (message, type = "success") => {
+    const toastElement = document.getElementById("taskToast");
+    const toastBody = document.getElementById("toastMessage");
+
+    toastElement.className = `toast align-items-center text-white bg-${type} border-0`;
+    toastBody.textContent = message;
+
+    new bootstrap.Toast(toastElement).show();
+};
